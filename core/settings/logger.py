@@ -10,14 +10,16 @@ LOGGING = {
         'standard': {
             '()': "pythonjsonlogger.jsonlogger.JsonFormatter",
             'format': '%(levelname)s %(asctime)s %(msecs)d %(processName)s %(process)d %(threadName)s %(pathname)s %(funcName)s %(lineno)d %(message)s'
-            # 'format': '%(asctime)s %(levelname)s %(message)s'
+        },
+        'local': {
+            'format': '%(message)s'
         }
     },
     'handlers': {
         'console': {
             'level': configs.LOG_LEVEL,
             'class': 'logging.StreamHandler',
-            'formatter': 'standard',
+            'formatter': 'local' if configs.ENVIRONMENT == 'local' else 'standard',
         },
     },
     'root': {

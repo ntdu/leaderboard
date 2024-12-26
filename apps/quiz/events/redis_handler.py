@@ -1,6 +1,12 @@
 
+import logging
+
+
 from kafka import KafkaTopic
 from .enumerations import AbstractEventHandler
+
+logger = logging.getLogger(__name__)
+
 
 class RedisHandler(AbstractEventHandler):
     handlers = {
@@ -22,6 +28,8 @@ class RedisHandler(AbstractEventHandler):
 
     @staticmethod
     def answer_quiz(event):
+        logger.info("Redis answer_quiz event")
+
         # Implement the logic for answering a quiz
         pass
 

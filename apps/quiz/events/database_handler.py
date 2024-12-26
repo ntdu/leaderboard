@@ -1,6 +1,10 @@
 
+import logging
 from kafka import KafkaTopic
 from .enumerations import AbstractEventHandler
+
+
+logger = logging.getLogger(__name__)
 
 
 class DatabaseHandler(AbstractEventHandler):
@@ -21,6 +25,8 @@ class DatabaseHandler(AbstractEventHandler):
 
     @staticmethod
     def answer_quiz(event):
+        logger.info("Database answer_quiz event")
+        logger.info("=" * 100)
         # Implement the logic for answering a quiz
         pass
 

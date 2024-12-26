@@ -18,9 +18,10 @@ class EventHandlerFactory:
         self.topic = topic
 
     def create_handler(self):
-        if self.handler_type == EventHandlerType.REDIS:
+        logger.info(f"Creating event handler for {self.handler_type}")
+        if self.handler_type == EventHandlerType.REDIS.value:
             return RedisHandler(self.topic)
-        elif self.handler_type == EventHandlerType.DATABASE:
+        elif self.handler_type == EventHandlerType.DATABASE.value:
             return DatabaseHandler(self.topic)
         else:
             raise ValueError(f"Invalid event type: {self.handler_type}")
