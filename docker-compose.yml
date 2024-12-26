@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: uspos
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7.0.11-alpine
+    ports:
+    - 6381:6380
+
+  api:
+    build: .
+    command: [ "make", "start-api" ]
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      - redis
+      - db
+
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
