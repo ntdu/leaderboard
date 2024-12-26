@@ -47,3 +47,6 @@ run:
 
 run-db-answer-consumer:
 	poetry run python manage.py start_db_answer_consumer
+
+run-redis-answer-consumer:
+	poetry run python manage.py start_redis_answer_consumer
