@@ -24,13 +24,3 @@ class EventHandlerFactory:
             return DatabaseHandler(self.topic)
         else:
             raise ValueError(f"Invalid event type: {self.handler_type}")
-
-
-event_data = {
-    'id': 1,
-    'name': 'quiz',
-    'description': 'quiz description',
-    'answer': '0',
-}
-event_handler = EventHandlerFactory(EventHandlerType.REDIS, KafkaTopic.QUIZ_ANSWER).create_handler()
-event_handler.process(event_data)
