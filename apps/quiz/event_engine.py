@@ -15,9 +15,9 @@ RETRY_TOPIC = "jobs-retry"
 
 
 class EventsEngine:
-    def __init__(self, topic: str, event_handlers: AbstractEventHandler):
+    def __init__(self, *topic: str, group_id: str, event_handlers: AbstractEventHandler):
         # self.consumer = get_kafka_consumer(topic, RETRY_TOPIC) # Add retry topic later
-        self.consumer = get_kafka_consumer(topic)
+        self.consumer = get_kafka_consumer(*topic, group_id=group_id)
         self.producer = None
 
         self.running = False

@@ -15,10 +15,13 @@ from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(BASE_DIR / 'apps'))
 
 from core.configs import get_configs
+from kafka import KafkaTopic
+from kafka import utils as kafka_utils
+from .logger import *
 
 configs = get_configs()
 
@@ -245,3 +248,5 @@ SIMPLE_JWT = {
     # The lifetime of the sliding token's refresh token. Default is 1 day.
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),
 }
+
+kafka_utils.create_kafka_topics(configs.get_kafka_url(), KafkaTopic)

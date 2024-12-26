@@ -1,5 +1,6 @@
 import functools
 from pathlib import Path
+from typing import Optional
 
 from pydantic_settings import BaseSettings
 
@@ -41,8 +42,8 @@ class CelerySettings(BaseSettings):
 class KafkaSettings(BaseSettings):
     KAFKA_HOST: str = 'localhost'
     KAFKA_PORT: int = 9092
-    KAFKA_USER: str = None
-    KAFKA_AUTH: str = None
+    KAFKA_USER: Optional[str] = None
+    KAFKA_AUTH: Optional[str] = None
 
     def get_kafka_url(self) -> str:
         return f'{self.KAFKA_HOST}:{self.KAFKA_PORT}'
@@ -53,6 +54,8 @@ class Configs(CelerySettings, KafkaSettings, DatabaseSettings, BaseSettings):
     ENVIRONMENT: str = "dev"
     HOST: str = "localhost"
     PORT: int = "8000"
+
+    LOG_LEVEL: Optional[str] = "DEBUG"
 
     SECRET_KEY: str
     ALLOWED_HOSTS: list = []
