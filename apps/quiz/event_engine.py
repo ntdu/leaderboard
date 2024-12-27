@@ -58,7 +58,9 @@ class EventsEngine:
         event_dict = json.loads(message)
         logger.info(f"Received message: {event_dict} in {self.group_id}")
 
-        self.event_handlers.process(event_dict, self.commit_message)
+        is_finish = self.event_handlers.process(event_dict, self.commit_message)
+        if is_finish:
+            self.commit_message()
 
     def commit_message(self):
         logger.info(f"{self.group_id=} Committing message")

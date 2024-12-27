@@ -2,6 +2,8 @@
 import enum
 from abc import abstractmethod
 from kafka import KafkaTopic
+from typing import Optional, Callable
+
 
 @enum.unique
 class EventHandlerType(enum.Enum):
@@ -19,5 +21,5 @@ class AbstractEventHandler:
         self.topic = topic
 
     @abstractmethod
-    def process(self, event: dict, callback: callable):
+    def process(self, event: dict, callback: Optional[Callable]) -> bool:
         pass

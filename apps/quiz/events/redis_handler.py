@@ -4,6 +4,8 @@ import logging
 
 from kafka import KafkaTopic
 from .enumerations import AbstractEventHandler
+from .utils import TimerManager
+
 
 logger = logging.getLogger(__name__)
 
@@ -16,22 +18,44 @@ class RedisHandler(AbstractEventHandler):
         KafkaTopic.LEADERBOARD_UPDATES: 'learboard_changes'
     }
 
-    def get_handler(self):
+    def __init__(self, kafka_topic, batch_size=50, interval=0.5):
+        self.topic = kafka_topic
+        self.batch_size = batch_size
+
+        self.user_answers = []
+
+        self.callback = None
+        self.interval = interval
+        self.timer_manager = TimerManager(interval, self.check_and_save)
+
+    def _get_handler(self):
         handler_name = RedisHandler.handlers.get(self.topic)
         if not handler_name:
             raise ValueError(f"Error: No handler for event type: {self.topic} in RedisHandler")
         return getattr(self, handler_name)
 
-    def process(self, event):
-        handler = self.get_handler()
+    def process(self, event, callback):
+        self.callback = callback
+        handler = self._get_handler()
         return handler(event)
 
-    @staticmethod
-    def answer_quiz(event):
+    def answer_quiz(self, event):
         logger.info("Redis answer_quiz event")
-
+        self.callback()
         # Implement the logic for answering a quiz
         return True
+
+    def check_and_save(self):
+        if self.user_answers:
+            self._save_user_answers()
+
+    def stop(self):
+        self.timer_manager.stop_timer()
+
+    def stop_timer(self):
+        if self.timer:
+            self.timer.cancel()
+            self.timer = None
 
     @staticmethod
     def join_quiz(event):
