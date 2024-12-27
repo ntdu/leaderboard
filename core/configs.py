@@ -50,7 +50,7 @@ class RedisSettings(BaseSettings):
         if self.REDIS_USER and self.REDIS_AUTH:
             return f"redis://{self.REDIS_USER}:{self.REDIS_AUTH}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
-        return f"redis://:{self.REDIS_AUTH}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
 
 class KafkaSettings(BaseSettings):
