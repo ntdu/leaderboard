@@ -58,10 +58,12 @@ class EventsEngine:
         event_dict = json.loads(message)
         logger.info(f"Received message: {event_dict} in {self.group_id}")
 
-        is_commit = self.event_handlers.process(event_dict)
+        self.event_handlers.process(event_dict, self.commit_message)
 
-        if is_commit:
-            self.consumer.commit()
+    def commit_message(self):
+        logger.info(f"{self.group_id=} Committing message")
+        logger.info("")
+        self.consumer.commit()
 
     def health_check(self) -> bool:
         return self.running

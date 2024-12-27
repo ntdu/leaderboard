@@ -54,4 +54,6 @@ class KafkaConsumer:
         finally:
             self.stop()
 
+    def commit(self):
+        self.consumer.commit()
 

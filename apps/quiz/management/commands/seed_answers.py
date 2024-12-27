@@ -1,5 +1,6 @@
 
 import json
+import random
 from django.core.management.base import BaseCommand
 
 from kafka import KafkaTopic, KafkaConsumerGroup
@@ -7,7 +8,6 @@ from core.kafka import KafkaProducer
 
 from quiz.models import UserQuiz, UserAnswer, Quiz, Question
 from django.contrib.auth import get_user_model
-
 
 class Command(BaseCommand):
     help = 'Seed the database with comments'
@@ -60,13 +60,19 @@ class Command(BaseCommand):
 
         print(Question.objects.all())
 
-        for i in range(1, 60):
+        for i in range(1, 100000):
             validated_data = {
                 "question_id": 1,
                 "user_id": 1,
                 "answer": 'A',
             }
-            producer.produce(KafkaTopic.QUIZ_ANSWER.value, key='0', value=json.dumps(validated_data))
+            producer.produce(KafkaTopic.QUIZ_ANSWER.value, key=str(random.randint(0, 1000000)), value=json.dumps(validated_data))
             producer.flush()
 
-        self.stdout.write(self.style.SUCCESS(F'Successfully seeded comments into the database'))
+            producer.produce(KafkaTopic.QUIZ_ANSWER.value, key=str(random.randint(0, 1000000)), value=json.dumps(validated_data))
+            producer.flush()
+
+            producer.produce(KafkaTopic.QUIZ_ANSWER.value, key=str(random.randint(0, 1000000)), value=json.dumps(validated_data))
+            producer.flush()
+
+        self.stdout.write(self.style.SUCCESS(F'Successfully seeded answers into the database'))

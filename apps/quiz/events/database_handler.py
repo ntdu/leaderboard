@@ -6,7 +6,7 @@ from kafka import KafkaTopic
 
 from .enumerations import AbstractEventHandler
 from quiz.models import UserQuiz, UserAnswer
-
+from .utils import TimerManager
 
 logger = logging.getLogger(__name__)
 
@@ -17,52 +17,42 @@ class DatabaseHandler(AbstractEventHandler):
         KafkaTopic.QUIZ_JOIN: 'join_quiz'
     }
     
-    def __init__(self, kafka_topic, batch_size=100, interval=10):
+    def __init__(self, kafka_topic, batch_size=50, interval=0.5):
         self.topic = kafka_topic
         self.batch_size = batch_size
-        self.interval = interval
-        self.last_message_time = time.time()
 
         self.user_answers = []
-        self.timer = None
 
-    def get_handler(self):
+        self.callback = None
+        self.interval = interval
+        self.timer_manager = TimerManager(interval, self.check_and_save)
+
+    def _get_handler(self):
         handler_name = DatabaseHandler.handlers.get(self.topic)
         if not handler_name:
             raise ValueError(f"Error: No handler for event type: {self.topic} in RedisHandler")
         return getattr(self, handler_name)
 
-    def process(self, event):
-        handler = self.get_handler()
+    def process(self, event, callback):
+        self.callback = callback
+        handler = self._get_handler()
         return handler(event)
 
     def answer_quiz(self, event):
-        self.add_user_answer(event)
-        self.last_message_time = time.time()
+        self.add_user_answer(event)  # 204 transactions
 
-        print(f"User answers: {len(self.user_answers)=}")
         if len(self.user_answers) >= self.batch_size:
-            self.save_user_answers()
-        else:
-            self.start_or_reset_timer()
+            self._save_user_answers()
 
+        self.timer_manager.start_or_reset_timer()
         return False
 
-    def start_or_reset_timer(self):
-        if self.timer and self.timer.is_alive():
-            self.timer.cancel()
-        self.timer = Timer(self.interval, self.check_and_save)
-        self.timer.start()
-
     def check_and_save(self):
-        current_time = time.time()
-        if self.user_answers and (current_time - self.last_message_time >= self.interval):
-            self.save_user_answers()
-        self.timer = Timer(self.interval, self.check_and_save)
-        self.timer.start()
+        if self.user_answers:
+            self._save_user_answers()
 
     def stop(self):
-        self.stop_timer()
+        self.timer_manager.stop_timer()
 
     def stop_timer(self):
         if self.timer:
@@ -82,8 +72,11 @@ class DatabaseHandler(AbstractEventHandler):
         )
         self.user_answers.append(user_answer)
 
-    def save_user_answers(self):
-        print(f"save_user_answers: {len(self.user_answers)=}")
+    def _save_user_answers(self):
+        logger.info(f"save_user_answers: {len(self.user_answers)}")
         if self.user_answers:
             UserAnswer.objects.bulk_create(self.user_answers)
             self.user_answers = []
+
+            if self.callback:
+                self.callback()

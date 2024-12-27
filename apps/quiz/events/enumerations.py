@@ -19,5 +19,5 @@ class AbstractEventHandler:
         self.topic = topic
 
     @abstractmethod
-    def process(self, event) -> bool:
+    def process(self, event: dict, callback: callable):
         pass
