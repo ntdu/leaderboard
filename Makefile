@@ -18,8 +18,8 @@ start-api:
 	$(CMD_MIGRATE)
 	$(CMD_START_API)
 
-seed-comments:
-	python manage.py seed_comments
+seed-answers:
+	python manage.py seed_answers
 
 unit-test:
 	python manage.py test

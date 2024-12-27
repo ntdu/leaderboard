@@ -2,12 +2,14 @@ from rest_framework import generics,status
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 from .serializers import RegistrationSerializer, UserSerializer
 from apps.api.handlers import CustomJSONRenderer
 
 
+@extend_schema(tags=["User"])
 class RegistrationAPIView(generics.GenericAPIView):
     '''Registers user'''
     serializer_class = RegistrationSerializer
@@ -27,6 +29,7 @@ class RegistrationAPIView(generics.GenericAPIView):
         return Response(data, status.HTTP_201_CREATED)
 
 
+@extend_schema(tags=["User"])
 class UserDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     renderer_classes = [CustomJSONRenderer]

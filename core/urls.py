@@ -28,7 +28,7 @@ urlpatterns = [
     path('api/', include('api.urls', namespace='api')),
 ]
 
-if configs.ENVIRONMENT == 'dev':
+if configs.ENVIRONMENT in ('local', 'dev',):
     import debug_toolbar
 
     urlpatterns += [

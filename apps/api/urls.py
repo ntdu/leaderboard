@@ -6,9 +6,11 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework.routers import DefaultRouter
 from .auth import views as auth_views
 from .user import views as user_views
+from .quiz import views as quiz_views
 
 app_name = 'api'
 router = DefaultRouter()
+router.register(r'v1/quizzes', quiz_views.UserAnswerViewSet, basename='quiz')
 
 
 urlpatterns = [

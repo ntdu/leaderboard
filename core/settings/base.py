@@ -22,6 +22,7 @@ from core.configs import get_configs
 from kafka import KafkaTopic
 from kafka import utils as kafka_utils
 from .logger import *
+from .drf import *
 
 configs = get_configs()
 
@@ -165,32 +166,7 @@ AUTH_USER_MODEL = 'user.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ],
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.ScopedRateThrottle',
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'login': '2/day'
-    },
-    'EXCEPTION_HANDLER': 'api.handlers.custom_exception_handler',
-}
-
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Slasify API',
-    'DESCRIPTION': 'V1 of the Slasify API',
-    'VERSION': '1.0.0',
-    # Other settings
-}
-
 TEST_DISCOVERY_PATTERN = 'tests.py'
-
 
 # JWT settings for Simple JWT
 SIMPLE_JWT = {
