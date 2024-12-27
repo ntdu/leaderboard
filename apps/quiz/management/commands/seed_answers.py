@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
         print(Question.objects.all())
 
-        for i in range(1, 100000):
+        for i in range(1, 10):
             validated_data = {
                 "question_id": 1,
                 "user_id": 1,

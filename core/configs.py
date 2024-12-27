@@ -39,6 +39,20 @@ class CelerySettings(BaseSettings):
     CELERY_WORKER_CONCURRENCY: int = 1
 
 
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str = 'localhost'
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+    REDIS_USER: Optional[str] = None
+    REDIS_AUTH: Optional[str] = None
+
+    def get_redis_url(self) -> str:
+        if self.REDIS_USER and self.REDIS_AUTH:
+            return f"redis://{self.REDIS_USER}:{self.REDIS_AUTH}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+
+        return f"redis://:{self.REDIS_AUTH}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+
+
 class KafkaSettings(BaseSettings):
     KAFKA_HOST: str = 'localhost'
     KAFKA_PORT: int = 9092
@@ -49,7 +63,7 @@ class KafkaSettings(BaseSettings):
         return f'{self.KAFKA_HOST}:{self.KAFKA_PORT}'
 
 
-class Configs(CelerySettings, KafkaSettings, DatabaseSettings, BaseSettings):
+class Configs(CelerySettings, RedisSettings, KafkaSettings, DatabaseSettings, BaseSettings):
     DEBUG: bool = False
     ENVIRONMENT: str = "dev"
     HOST: str = "localhost"

@@ -23,6 +23,7 @@ from kafka import KafkaTopic
 from kafka import utils as kafka_utils
 from .logger import *
 from .drf import *
+from .redis import *
 
 configs = get_configs()
 

@@ -41,7 +41,6 @@ class RedisHandler(AbstractEventHandler):
 
     def answer_quiz(self, event):
         logger.info("Redis answer_quiz event")
-        self.callback()
         # Implement the logic for answering a quiz
         return True
 
