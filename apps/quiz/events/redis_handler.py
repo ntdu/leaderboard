@@ -3,11 +3,13 @@ import logging
 
 
 from kafka import KafkaTopic
+from django_redis import get_redis_connection
 from .enumerations import AbstractEventHandler
 from .utils import TimerManager
 
 
 logger = logging.getLogger(__name__)
+redis_client = get_redis_connection()
 
 
 class RedisHandler(AbstractEventHandler):
@@ -41,8 +43,19 @@ class RedisHandler(AbstractEventHandler):
 
     def answer_quiz(self, event):
         logger.info("Redis answer_quiz event")
+        user_score = self._calculate_score(event['quiz_id'], event['question_id'], event['answer'])
+        logger.info(f"{user_score=}")
         # Implement the logic for answering a quiz
         return True
+
+    def _calculate_score(self, quiz_id, question_id, answer):
+        question_key = f'quiz__{quiz_id}__questions'
+        correct_answer = redis_client.hget(question_key, f'question_{question_id}_correct_answer')
+        score = int(redis_client.hget(question_key, f'question_{question_id}_score'))
+    
+        if correct_answer == answer:
+            return score
+        return 0
 
     def check_and_save(self):
         if self.user_answers:

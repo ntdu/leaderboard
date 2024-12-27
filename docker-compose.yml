@@ -38,7 +38,7 @@ services:
   redis:
     image: redis:7.0.11-alpine
     ports:
-    - 6381:6380
+    - 6379:6379
 
   api:
     build: .
