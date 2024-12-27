@@ -13,4 +13,6 @@ class UserAnswerSerializer(serializers.ModelSerializer):
         fields = ['user', 'question', 'answer']
 
     def create(self, validated_data):
+        # TODO: Validate input data using Redis
+        # Push validated data to Kafka
         return UserAnswer.objects.create(**validated_data)

@@ -13,6 +13,7 @@ class KafkaConsumer:
             'bootstrap.servers': base_url,
             'group.id': group_id,
             'auto.offset.reset': 'earliest',
+            'enable.auto.commit': False,
             'partition.assignment.strategy': 'roundrobin',
         }
 

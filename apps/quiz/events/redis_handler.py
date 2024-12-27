@@ -31,7 +31,7 @@ class RedisHandler(AbstractEventHandler):
         logger.info("Redis answer_quiz event")
 
         # Implement the logic for answering a quiz
-        pass
+        return True
 
     @staticmethod
     def join_quiz(event):

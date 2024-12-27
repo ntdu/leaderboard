@@ -18,4 +18,4 @@ class UserAnswer(AbstractBaseModel):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_answers')
     answer = models.TextField()
-    is_correct = models.BooleanField(default=False)
+    is_correct = models.BooleanField(default=False)  # consider using a method to calculate this

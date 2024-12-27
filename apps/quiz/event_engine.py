@@ -17,6 +17,7 @@ RETRY_TOPIC = "jobs-retry"
 class EventsEngine:
     def __init__(self, *topic: str, group_id: str, event_handlers: AbstractEventHandler):
         # self.consumer = get_kafka_consumer(topic, RETRY_TOPIC) # Add retry topic later
+        self.group_id = group_id
         self.consumer = get_kafka_consumer(*topic, group_id=group_id)
         self.producer = None
 
@@ -55,9 +56,12 @@ class EventsEngine:
     @retry_on_exception(max_retries=3)
     def process_event(self, message):
         event_dict = json.loads(message)
-        logger.info(f"Received message: {event_dict}")
+        logger.info(f"Received message: {event_dict} in {self.group_id}")
 
-        self.event_handlers.process(event_dict)
+        is_commit = self.event_handlers.process(event_dict)
+
+        if is_commit:
+            self.consumer.commit()
 
     def health_check(self) -> bool:
         return self.running
