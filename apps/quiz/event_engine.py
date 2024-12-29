@@ -2,7 +2,7 @@
 import json
 import logging
 
-from core.kafka import get_kafka_consumer
+from core.kafka import get_kafka_consumer, get_kafka_producer
 from utils.decorators import retry_on_exception
 
 from .events.enumerations import AbstractEventHandler
@@ -19,16 +19,17 @@ class EventsEngine:
         # self.consumer = get_kafka_consumer(topic, RETRY_TOPIC) # Add retry topic later
         self.group_id = group_id
         self.consumer = get_kafka_consumer(*topic, group_id=group_id)
-        self.producer = None
+        self.producer = get_kafka_producer()
 
         self.running = False
         self.event_handlers = event_handlers
+        self.event_handlers.set_producer(self.producer)
 
     def start(self):
         logger.info("Starting Events Engine...")
         self.consumer.start()
-        self.running = True
 
+        self.running = True
         logger.info("Started Events Engine Successfully")
 
     def stop(self):

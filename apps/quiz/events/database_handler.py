@@ -38,6 +38,9 @@ class DatabaseHandler(AbstractEventHandler):
         handler = self._get_handler()
         return handler(event)
 
+    def set_producer(self, producer):
+        pass
+
     def answer_quiz(self, event):
         self.add_user_answer(event)  # 204 transactions
 

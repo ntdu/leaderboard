@@ -23,3 +23,7 @@ class AbstractEventHandler:
     @abstractmethod
     def process(self, event: dict, callback: Optional[Callable]) -> bool:
         pass
+
+    @abstractmethod
+    def set_producer(self, producer):
+        pass

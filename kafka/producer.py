@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 
 class KafkaProducer:
     # Just for testing purpose
-    def __init__(self):
+    def __init__(self, base_url):
         self.producer = Producer({
-            'bootstrap.servers': 'localhost:9092',
+            'bootstrap.servers': base_url,
         })
 
     def delivery_report(self, err, msg):

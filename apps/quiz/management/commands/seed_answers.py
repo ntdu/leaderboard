@@ -27,6 +27,14 @@ class Command(BaseCommand):
                 password='testpassword123'
             )
 
+        user = get_user_model().objects.filter(id=2).first()
+        if not user:
+            user = get_user_model().objects.create_user(
+                email='testuser1@example.com',
+                user_name='testuser1',
+                password='testpassword123'
+            )
+
         quiz = Quiz.objects.filter(id=1).first()
         if not quiz:
             quiz = Quiz.objects.create(
@@ -84,7 +92,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.init_data()
         self.init_redis()
-        producer = KafkaProducer()
+        producer = KafkaProducer('localhost:9092')
 
         print(redis_client.get('cache_key'))
         print(Question.objects.count())
@@ -96,7 +104,7 @@ class Command(BaseCommand):
             validated_data = {
                 "quiz_id": str(Quiz.objects.all().first().id),
                 "question_id": 1,
-                "user_id": 1,
+                "user_id": 2,
                 "answer": 'A',
             }
             producer.produce(KafkaTopic.QUIZ_ANSWER.value, key=str(random.randint(0, 1000000)), value=json.dumps(validated_data))
