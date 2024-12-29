@@ -27,3 +27,13 @@ class AbstractEventHandler:
     @abstractmethod
     def set_producer(self, producer):
         pass
+
+
+@enum.unique
+class QuizKeys(enum.Enum):
+    """
+    Enumerations for Event
+    """
+
+    QUIZ_LEADERBOARD = 'quiz__{}__scores'
+    QUIZ_QUESTION = 'quiz__{}__questions'

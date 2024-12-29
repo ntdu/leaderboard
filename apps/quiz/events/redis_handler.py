@@ -7,7 +7,7 @@ import logging
 from redis import Redis
 from kafka import KafkaTopic
 from django_redis import get_redis_connection
-from .enumerations import AbstractEventHandler
+from .enumerations import AbstractEventHandler, QuizKeys
 from .utils import TimerManager
 
 
@@ -59,7 +59,7 @@ class RedisHandler(AbstractEventHandler):
         logger.info(f"{new_score=}")
 
         # Update user_score into sorted set
-        sorted_set_key = f'quiz__{event["quiz_id"]}__scores'
+        sorted_set_key = QuizKeys.QUIZ_LEADERBOARD.value.format(event['quiz_id'])
         user_id = event['user_id']
 
         # Get the current score
@@ -112,7 +112,6 @@ class RedisHandler(AbstractEventHandler):
         # Implement the logic for joining a quiz
         pass
 
-    @staticmethod
-    def learboard_changes(event):
+    def learboard_changes(self, event):
         # Implement the logic for joining a quiz
         pass
