@@ -19,8 +19,8 @@ class RedisHandler(AbstractEventHandler):
     handlers = {
         KafkaTopic.QUIZ_ANSWER: 'answer_quiz',
         KafkaTopic.QUIZ_JOIN: 'join_quiz',
-        KafkaTopic.LEADERBOARD_CHANGES: 'learboard_updates',
-        KafkaTopic.LEADERBOARD_UPDATES: 'learboard_changes'
+        KafkaTopic.LEADERBOARD_CHANGES: 'learboard_changes',
+        KafkaTopic.LEADERBOARD_UPDATES: 'learboard_updates'
     }
 
     def __init__(self, kafka_topic, batch_size=50, interval=0.5):
@@ -113,5 +113,32 @@ class RedisHandler(AbstractEventHandler):
         pass
 
     def learboard_changes(self, event):
+        # event = {
+        #     'quiz_id': event['quiz_id'],
+        #     'timestamp': int(time.time())
+        # }
+
+        quiz_id = event['quiz_id']
+        timestamp = event['timestamp']
+
+        quiz_last_update_key = QuizKeys.QUIZ_LAST_UPDATE.value.format(quiz_id)
+        last_update = redis_client.get(quiz_last_update_key)
+
+        if not last_update:
+            redis_client.set(quiz_last_update_key, timestamp)
+        else:
+            last_update = int(last_update)
+            if timestamp - last_update < 0.5:
+                logger.info(f"Skipping Redis leaderboard_changes event for quiz {quiz_id} at {timestamp}")
+                return False
+        
+        sorted_set_key = QuizKeys.QUIZ_LEADERBOARD.value.format(event['quiz_id'])
+
+        # Get all users
+        all_users = redis_client.zrevrange(sorted_set_key, 0, -1, withscores=True)
+        logger.info(f"Redis leaderboard_changes event for quiz {quiz_id} at {timestamp}")
+        logger.info(f"All users in quiz {quiz_id} at {timestamp}: {all_users}")
+
+
         # Implement the logic for joining a quiz
-        pass
+        return False

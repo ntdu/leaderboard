@@ -13,13 +13,13 @@ configs = get_configs()
 
 
 class Command(BaseCommand):
-    help = 'Start the Kafka consumer'
+    help = 'Start the leaderboard changes consumer'
 
     def handle(self, *args, **kwargs):
-        event_handler = EventHandlerFactory(EventHandlerType.REDIS.value, KafkaTopic.QUIZ_ANSWER).create_handler()
+        event_handler = EventHandlerFactory(EventHandlerType.REDIS.value, KafkaTopic.LEADERBOARD_CHANGES).create_handler()
 
         event_engine = EventsEngine(
-            KafkaTopic.QUIZ_ANSWER.value,
+            KafkaTopic.LEADERBOARD_CHANGES.value,
             group_id=KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER,
             event_handlers=event_handler
         )

@@ -50,3 +50,6 @@ run-db-answer-consumer:
 
 run-redis-answer-consumer:
 	poetry run python manage.py start_redis_answer_consumer
+
+run-leaderboard-changes-consumer:
+	poetry run python manage.py start_leaderboard_changes_consumer

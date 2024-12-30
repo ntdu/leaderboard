@@ -37,3 +37,4 @@ class QuizKeys(enum.Enum):
 
     QUIZ_LEADERBOARD = 'quiz__{}__scores'
     QUIZ_QUESTION = 'quiz__{}__questions'
+    QUIZ_LAST_CHANGES = 'quiz__{}__last_changes'
