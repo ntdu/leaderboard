@@ -82,9 +82,10 @@ class RedisHandler(AbstractEventHandler):
         return True
 
     def _calculate_score(self, quiz_id, question_id, answer):
-        question_key = f'quiz__{quiz_id}__questions'
-        correct_answer = redis_client.hget(question_key, f'question_{question_id}_correct_answer')
-        score = int(redis_client.hget(question_key, f'question_{question_id}_score'))
+        question_key = QuizKeys.QUIZ_QUESTION.value.format(quiz_id)
+
+        correct_answer = redis_client.hget(question_key, QuizKeys.QUIZ_CORRECT_ANSWER.value.format(question_id))
+        score = int(redis_client.hget(question_key, QuizKeys.QUIZ_QUESTION_SCORE.value.format(question_id)))
     
         if correct_answer == answer:
             return score
@@ -121,17 +122,17 @@ class RedisHandler(AbstractEventHandler):
         quiz_id = event['quiz_id']
         timestamp = event['timestamp']
 
-        quiz_last_update_key = QuizKeys.QUIZ_LAST_UPDATE.value.format(quiz_id)
-        last_update = redis_client.get(quiz_last_update_key)
+        quiz_last_changes_key = QuizKeys.QUIZ_LAST_CHANGES.value.format(quiz_id)
+        last_changes = redis_client.get(quiz_last_changes_key)
 
-        if not last_update:
-            redis_client.set(quiz_last_update_key, timestamp)
+        if not last_changes:
+            redis_client.set(quiz_last_changes_key, timestamp)
         else:
-            last_update = int(last_update)
-            if timestamp - last_update < 0.5:
+            last_changes = int(last_changes)
+            if timestamp - last_changes < 0.5:
                 logger.info(f"Skipping Redis leaderboard_changes event for quiz {quiz_id} at {timestamp}")
-                return False
-        
+                return True
+
         sorted_set_key = QuizKeys.QUIZ_LEADERBOARD.value.format(event['quiz_id'])
 
         # Get all users
@@ -139,6 +140,5 @@ class RedisHandler(AbstractEventHandler):
         logger.info(f"Redis leaderboard_changes event for quiz {quiz_id} at {timestamp}")
         logger.info(f"All users in quiz {quiz_id} at {timestamp}: {all_users}")
 
-
-        # Implement the logic for joining a quiz
+        # Send the leaderboard updates
         return False
