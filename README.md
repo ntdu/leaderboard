@@ -238,7 +238,7 @@
 ![KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER](redis_leaderboard_changes_consumer.png)
 
 4. **Seeding Answers command**
-![Seed Answer](seed_answers.png)
+![Seed Answer](seed_anwsers.png)
 
 #### Metrics:
 - Database Transactions
