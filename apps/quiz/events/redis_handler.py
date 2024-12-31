@@ -141,4 +141,4 @@ class RedisHandler(AbstractEventHandler):
         logger.info(f"All users in quiz {quiz_id} at {timestamp}: {all_users}")
 
         # Send the leaderboard updates
-        return False
+        return True

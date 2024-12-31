@@ -6,8 +6,8 @@
 
 #### Assumptions
 
-1. Allow submit after each question or all questions only one time => each question
-2. When can users join a quiz? => after quiz available timestamp
+1. Allow submission after each question or all questions only one time => each question
+2. When can users join a quiz? => after the quiz available timestamp
 
 ### 2. Database Modeling and API Design
 
@@ -24,37 +24,37 @@
 #### 3.1 Web/Mobile
 
 - Mobile/Web handles actions from users through API (join quiz and send answers)
-- Establish WS connections
+- Establish WebSocket connections
 - Display the leaderboard in real-time
 
 #### 3.2 Quiz-service
 
 - Manage quizzes including Quiz, Questions, UserQuiz, etc.
-- Verify input data (cache quiz data on Redis based on quiz's expiration time)
+- Verify input data (cache quiz data on Redis based on the quiz's expiration time)
 - Send the validated data to appropriate topics
 
-#### 3.3 Quiz-Join-Database Consumer (Respond for the join quiz event)
+#### 3.3 Quiz-Join-Database Consumer (Responds to the join quiz event)
 
 - Batch create UserQuiz (Atomic, manually ack)
-- Batch creates when total of messages reach a threshold or the last message exceeds 500ms
+- Batch creates when the total number of messages reaches a threshold or the last message exceeds 500ms
 
-#### 3.4 Quiz-Join-Redis Consumer (Respond for the join quiz event)
+#### 3.4 Quiz-Join-Redis Consumer (Responds to the join quiz event)
 
 - Add user_id into the Redis quiz pool
 
-#### 3.5 Quiz-Answer-Database Consumer (Respond for the answering event)
+#### 3.5 Quiz-Answer-Database Consumer (Responds to the answering event)
 
-- Batch creates the UserAnswer table (Atomic, manually ack, messages threshold and periodic 500ms)
+- Batch creates the UserAnswer table (Atomic, manually ack, messages threshold, and periodic 500ms)
 
-#### 3.6 Quiz-Answer-Redis Consumer (Respond for the answering event)
+#### 3.6 Quiz-Answer-Redis Consumer (Responds to the answering event)
 
 - Calculate new user score based on the user's answer and the questions config in Redis
 - Update new user score into the SortedSet with quiz_id in Redis
 - Send an event to the leaderboard changes topic
 
-#### 3.7 Leaderboard-changes-consumer (Response for determining whether to send new leaderboard to Frontend or not)
+#### 3.7 Leaderboard-changes-consumer (Responds to determining whether to send a new leaderboard to the Frontend or not)
 
-- Use last_leaderboard_changes to avoid overwhelming Frontend
+- Use last_leaderboard_changes to avoid overwhelming the Frontend
 
 #### 3.8 Leaderboard-service
 
@@ -90,14 +90,14 @@
     - Manually ack messages from Kafka to ensure processing even if the consumer crashes
     - Use transactions for bulk create
 
-2. Overwhelm database with many connections:
+2. Overwhelm the database with many connections:
     - Use a periodic task running every 500ms (adjustable based on real scenarios) to bulk-create UserQuiz
 
 3. Eventual consistency:
     - In case of Redis or Postgres consumer crashes, ensure eventual consistency through previous setups
     - Investigate issues if consumers cause long-term inconsistency
     - Modify logic to verify input data at the quiz-service
-    - Add two-phase commit mechanism
+    - Add a two-phase commit mechanism
 
 #### 4.2 Realtime Score Updates
 
@@ -114,8 +114,8 @@
 - Mobile/Web call API to answer the quiz
 - Quiz-service validates the input data
 - Push validated data into the quiz-answer topic
-- Two consumers consume that topic (one for storing data into Postgres and the other for calculating score and updating leaderboard)
-- Use SortedSet datatype in Redis to store leaderboard
+- Two consumers consume that topic (one for storing data into Postgres and the other for calculating score and updating the leaderboard)
+- Use SortedSet datatype in Redis to store the leaderboard
 
 **Concerns**:
 - Same as the above concerns
@@ -158,9 +158,9 @@
 5. **WebSocket Server**: Socket.io with FastAPI
     - Socket.io can integrate with FastAPI to handle large connections at the same time
 
-
 ### 6. Monitoring and Observability
-1. **Logging**: 
+
+1. **Logging**:
 
     Tools: ELK Stack (Elasticsearch, Logstash, Kibana)
     - Elasticsearch: Store and index logs for quick search and analysis.
@@ -214,24 +214,49 @@
     - Integrate Sentry with our services to capture and report errors.
     - Use Sentry’s dashboard to monitor error trends and diagnose issues.
 
-
 ### 7. Demo
-Assumptions:
-    - Input data are validated at the quiz-services
 
-Experiments:
-    - Quiz-servers send 300 000 requests to kafka
+#### Assumptions:
+- Input data are validated at the quiz-services
+- This demo purpose is to test performance so we allow answering a question multiple times
 
-Metrics:
-    - Database connections
-    - Delay of messages in topic
-    - State of leaderboard in terminal
+#### Experiments:
+- Quiz-servers send 400,000 requests to Kafka
+- 100,000 for user1
+- 300,000 for user2
 
-1. **Database Connections**
+![Answer Seeding](answer_seeding.png)
 
-2. **Deplay of messages in Topic**
+#### Components:
+1. **KafkaConsumerGroup.DB_QUIZ_ANSWER_CONSUMER on quiz_answer_queue**
+![KafkaConsumerGroup.DB_QUIZ_ANSWER_CONSUMER](db_quiz_answer_consumer.png)
+
+2. **KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER on quiz_answer_queue**
+![KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER](redis_quiz_answer_consumer.png)
+
+3. **KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER on leaderboard_changes_queue**
+![KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER](redis_leaderboard_changes_consumer.png)
+
+4. **Seeding Answers command**
+![Seed Answer](seed_answers.png)
+
+#### Metrics:
+- Database Transactions
+- Delay of messages in topic
+- State of leaderboard in terminal
+
+1. **Database Transactions**
+Stable with transactions less than 200
+![Databases](databases.png)
+
+2. **Delay of messages in Topic**
+![Topic Lag](topic_lag.png)
 
 3. **State of Leaderboard**
+![Leaderboard](leader_board.png)
 
+#### Stucks:
+Stuck at Redis consumer to calculate user score
 
-
+![Two Redis Consumers](2_redis_calculate_consumers.png)
+- Scaling with multiple Redis consumers can reduce the consuming time, but we faced inconsistency => calculate answers by batch

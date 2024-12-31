@@ -1,4 +1,5 @@
 
+import time
 import json
 import random
 from redis import Redis
@@ -107,12 +108,21 @@ class Command(BaseCommand):
         user1 = get_user_model().objects.all().first()
         user2 = get_user_model().objects.all().exclude(id=user1.id).first()
 
-        user1_quiz = UserQuiz.objects.filter(user=user1).first()
-        quiz = Quiz.objects.filter(id=user1_quiz.quiz.id).first()
+        quiz = Quiz.objects.all().last()
+        user1_quiz = UserQuiz.objects.filter(user=user1, quiz=quiz).first()
+        if not user1_quiz:
+            raise Exception('UserQuiz1 not found')
+        # quiz = Quiz.objects.filter(id=user1_quiz.quiz.id).first()
 
-        user2_quiz = UserQuiz.objects.filter(user=user2).first()
-        quiz2 = Quiz.objects.filter(id=user2_quiz.quiz.id).first()
-        for i in range(1, 10):
+        user2_quiz = UserQuiz.objects.filter(user=user2, quiz=quiz).first()
+        if not user2_quiz:
+            raise Exception('UserQuiz2 not found')
+        # quiz2 = Quiz.objects.filter(id=user2_quiz.quiz.id).first()
+
+        start_time = time.time()
+
+        for i in range(1, 10000):
+        # for i in range(1, 100000):
             validated_data = {
                 "quiz_id": str(quiz.id),
                 "question_id": 1,
@@ -123,7 +133,7 @@ class Command(BaseCommand):
             producer.flush()
 
             validated_data = {
-                "quiz_id": str(quiz2.id),
+                "quiz_id": str(quiz.id),
                 "question_id": 1,
                 "user_id": user2.id,
                 "answer": 'A',
@@ -131,10 +141,12 @@ class Command(BaseCommand):
             producer.produce(KafkaTopic.QUIZ_ANSWER.value, key=str(random.randint(0, 1000000)), value=json.dumps(validated_data))
             producer.flush()
 
-            # producer.produce(KafkaTopic.QUIZ_ANSWER.value, key=str(random.randint(0, 1000000)), value=json.dumps(validated_data))
-            # producer.flush()
+            producer.produce(KafkaTopic.QUIZ_ANSWER.value, key=str(random.randint(0, 1000000)), value=json.dumps(validated_data))
+            producer.flush()
 
-            # producer.produce(KafkaTopic.QUIZ_ANSWER.value, key=str(random.randint(0, 1000000)), value=json.dumps(validated_data))
-            # producer.flush()
+            producer.produce(KafkaTopic.QUIZ_ANSWER.value, key=str(random.randint(0, 1000000)), value=json.dumps(validated_data))
+            producer.flush()
 
-        self.stdout.write(self.style.SUCCESS(F'Successfully seeded answers into the database'))
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        self.stdout.write(self.style.SUCCESS(f'Successfully seeded answers into the database in {elapsed_time:.2f} seconds'))
