@@ -213,3 +213,25 @@
     Implementation:
     - Integrate Sentry with our services to capture and report errors.
     - Use Sentry’s dashboard to monitor error trends and diagnose issues.
+
+
+### 7. Demo
+Assumptions:
+    - Input data are validated at the quiz-services
+
+Experiments:
+    - Quiz-servers send 300 000 requests to kafka
+
+Metrics:
+    - Database connections
+    - Delay of messages in topic
+    - State of leaderboard in terminal
+
+1. **Database Connections**
+
+2. **Deplay of messages in Topic**
+
+3. **State of Leaderboard**
+
+
+
