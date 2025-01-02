@@ -2,7 +2,7 @@
 
 ### 1. Architecture Diagram
 
-![Architecture Diagram](architecture_diagram.png)
+![Architecture Diagram](images/architecture_diagram.png)
 
 #### Assumptions
 
@@ -13,11 +13,11 @@
 
 #### 2.1 Database Modeling
 
-![Database Schemas](database_schemas.png)
+![Database Schemas](images/database_schemas.png)
 
 #### 2.2 API Designs
 
-![API Designs](api_designs.png)
+![API Designs](images/api_designs.png)
 
 ### 3. Component Description
 
@@ -225,20 +225,20 @@
 - 100,000 for user1
 - 300,000 for user2
 
-![Answer Seeding](answer_seeding.png)
+![Answer Seeding](images/answer_seeding.png)
 
 #### Components:
 1. **KafkaConsumerGroup.DB_QUIZ_ANSWER_CONSUMER on quiz_answer_queue**
-![KafkaConsumerGroup.DB_QUIZ_ANSWER_CONSUMER](db_quiz_answer_consumer.png)
+![KafkaConsumerGroup.DB_QUIZ_ANSWER_CONSUMER](images/db_quiz_answer_consumer.png)
 
 2. **KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER on quiz_answer_queue**
-![KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER](redis_quiz_answer_consumer.png)
+![KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER](images/redis_quiz_answer_consumer.png)
 
 3. **KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER on leaderboard_changes_queue**
-![KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER](redis_leaderboard_changes_consumer.png)
+![KafkaConsumerGroup.REDIS_QUIZ_ANSWER_CONSUMER](images/redis_leaderboard_changes_consumer.png)
 
 4. **Seeding Answers command**
-![Seed Answer](seed_anwsers.png)
+![Seed Answer](images/seed_anwsers.png)
 
 #### Metrics:
 - Database Transactions
@@ -247,16 +247,16 @@
 
 1. **Database Transactions**
 Stable with transactions less than 200
-![Databases](databases.png)
+![Databases](images/databases.png)
 
 2. **Delay of messages in Topic**
-![Topic Lag](topic_lag.png)
+![Topic Lag](images/topic_lag.png)
 
 3. **State of Leaderboard**
-![Leaderboard](leader_board.png)
+![Leaderboard](images/leader_board.png)
 
 #### Stucks:
 Stuck at Redis consumer to calculate user score
 
-![Two Redis Consumers](2_redis_calculate_consumers.png)
+![Two Redis Consumers](images/2_redis_calculate_consumers.png)
 - Scaling with multiple Redis consumers can reduce the consuming time, but we faced inconsistency => calculate answers by batch
